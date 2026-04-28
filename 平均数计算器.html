@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌟 平均数计算器 - 数学小帮手</title>
+    <style>
+        :root {
+            --bg: #fdf6e3;
+            --card-bg: #ffffff;
+            --primary: #ff7eb3;
+            --primary-dark: #e8659a;
+            --secondary: #7ec8e3;
+            --accent: #ffe07a;
+            --accent2: #b8e6c8;
+            --text: #4a3f5c;
+            --text-light: #6b5e7a;
+            --border: #f0d9e0;
+            --shadow-soft: 0 8px 30px rgba(180, 120, 150, 0.12);
+            --shadow-card: 0 6px 20px rgba(0, 0, 0, 0.06);
+            --radius-lg: 28px;
+            --radius-md: 18px;
+            --radius-sm: 12px;
+            --font-heading: 'Nunito', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+            --font-body: 'Nunito', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+            --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: linear-gradient(160deg, #fff5e8 0%, #fde9f2 25%, #e8f4fd 50%, #f0fae6 75%, #fff8e1 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 背景装饰浮动元素 */
+        .bg-decoration {
+            position: fixed;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.55;
+            animation: floatAround 18s ease-in-out infinite;
+        }
+        .bg-decoration.d1 { top: 5%; left: 5%; font-size: 3.5rem; animation-duration: 20s; }
+        .bg-decoration.d2 { top: 12%; right: 6%; font-size: 2.8rem; animation-delay: -5s; animation-duration: 22s; }
+        .bg-decoration.d3 { bottom: 10%; left: 8%; font-size: 3rem; animation-delay: -9s; animation-duration: 19s; }
+        .bg-decoration.d4 { bottom: 15%; right: 5%; font-size: 3.2rem; animation-delay: -3s; animation-duration: 24s; }
+        .bg-decoration.d5 { top: 40%; left: 2%; font-size: 2.2rem; animation-delay: -12s; animation-duration: 21s; }
+        .bg-decoration.d6 { top: 35%; right: 3%; font-size: 2.5rem; animation-delay: -7s; animation-duration: 23s; }
+
+        @keyframes floatAround {
+            0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+            15% { transform: translate(18px, -25px) rotate(6deg) scale(1.08); }
+            30% { transform: translate(-10px, -40px) rotate(-4deg) scale(0.94); }
+            45% { transform: translate(-22px, -8px) rotate(3deg) scale(1.05); }
+            60% { transform: translate(8px, 20px) rotate(-6deg) scale(0.96); }
+            75% { transform: translate(20px, -12px) rotate(5deg) scale(1.03); }
+            90% { transform: translate(-14px, 15px) rotate(-2deg) scale(0.98); }
+        }
+
+        .main-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 720px;
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-soft);
+            padding: 32px 28px 28px;
+            border: 3px solid #ffe8f0;
+            transition: all var(--transition);
+        }
+
+        .app-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .app-header .icon-row {
+            font-size: 3rem;
+            letter-spacing: 4px;
+            animation: bounceIcon 2s ease-in-out infinite;
+        }
+        @keyframes bounceIcon {
+            0%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-14px); }
+            50% { transform: translateY(0); }
+            70% { transform: translateY(-7px); }
+        }
+        .app-header h1 {
+            font-family: var(--font-heading);
+            font-size: clamp(1.6rem, 4vw, 2.2rem);
+            color: #ff6b9d;
+            font-weight: 800;
+            letter-spacing: 1px;
+            margin-top: 2px;
+        }
+        .app-header .subtitle {
+            font-size: 0.95rem;
+            color: #b898a8;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        .input-section {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .input-section label { display: none; }
+        .number-input {
+            flex: 1 1 160px;
+            min-width: 120px;
+            padding: 14px 18px;
+            border: 3px dashed #e8cfda;
+            border-radius: 50px;
+            font-size: 1.15rem;
+            font-family: var(--font-body);
+            font-weight: 700;
+            color: var(--text);
+            background: #fff9fb;
+            outline: none;
+            transition: all var(--transition);
+            text-align: center;
+            letter-spacing: 1px;
+        }
+        .number-input:focus {
+            border-color: var(--primary);
+            border-style: solid;
+            box-shadow: 0 0 0 6px rgba(255, 126, 179, 0.1);
+            background: #fff;
+        }
+        .number-input::placeholder {
+            color: #d4bcc7;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .btn {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            font-size: 1rem;
+            padding: 13px 22px;
+            border-radius: 50px;
+            cursor: pointer;
+            border: none;
+            letter-spacing: 1px;
+            transition: all var(--transition);
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn:active { transform: scale(0.94); }
+        .btn-add {
+            background: #ff7eb3;
+            color: #fff;
+            box-shadow: 0 6px 18px rgba(255, 126, 179, 0.35);
+            font-size: 1.05rem;
+            padding: 14px 26px;
+        }
+        .btn-add:hover {
+            background: #ff6aa5;
+            box-shadow: 0 8px 24px rgba(255, 126, 179, 0.45);
+            transform: translateY(-2px);
+        }
+        .btn-calc {
+            background: #7ec8e3;
+            color: #fff;
+            box-shadow: 0 6px 18px rgba(126, 200, 227, 0.35);
+            font-size: 1.05rem;
+            padding: 14px 26px;
+            flex: 1 1 auto;
+        }
+        .btn-calc:hover {
+            background: #5db8d8;
+            box-shadow: 0 8px 24px rgba(126, 200, 227, 0.45);
+            transform: translateY(-2px);
+        }
+        .btn-clear {
+            background: #fff;
+            color: #e890a0;
+            border: 3px solid #fdd5df;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+        }
+        .btn-clear:hover {
+            background: #fff5f7;
+            border-color: #ffb8c9;
+            color: #e0607a;
+        }
+        .btn-reset {
+            background: #ffe8ee;
+            color: #d46880;
+            border: 2px solid #fccdd8;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            font-size: 0.9rem;
+            padding: 10px 18px;
+        }
+        .btn-reset:hover {
+            background: #ffd6e2;
+            color: #c0405c;
+        }
+
+        .data-display-area {
+            background: #fefdfb;
+            border-radius: var(--radius-md);
+            border: 2px solid #f5e6ec;
+            padding: 18px 20px;
+            margin-bottom: 16px;
+            min-height: 70px;
+            transition: all var(--transition);
+        }
+        .data-display-area .section-label {
+            font-weight: 700;
+            color: #b898a8;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .data-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+        .data-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: linear-gradient(135deg, #fff0f5, #ffe8f0);
+            border: 2px solid #fdd5df;
+            border-radius: 30px;
+            padding: 8px 14px;
+            font-weight: 700;
+            font-size: 1rem;
+            color: #d46880;
+            animation: popIn 0.3s ease-out;
+            transition: all var(--transition);
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            70% { transform: scale(1.12); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .data-tag .tag-index {
+            font-size: 0.7rem;
+            background: #ffb8c9;
+            color: #fff;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+        }
+        .no-data {
+            color: #d4bcc7;
+            font-style: italic;
+            font-weight: 600;
+            padding: 10px 0;
+        }
+        .data-count-badge {
+            display: inline-block;
+            background: #ffe07a;
+            color: #7a6030;
+            font-weight: 800;
+            font-size: 0.85rem;
+            padding: 5px 14px;
+            border-radius: 30px;
+            margin-left: 4px;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+        }
+        .button-row .btn {
+            flex: 1 1 0;
+            min-width: 80px;
+            justify-content: center;
+        }
+
+        .process-area {
+            background: #fefefb;
+            border-radius: var(--radius-md);
+            border: 2px dashed #e8d5d0;
+            padding: 20px;
+            margin-top: 8px;
+            transition: all 0.4s ease;
+        }
+        .process-area.empty {
+            border-color: #ece0d8;
+            background: #fefdfc;
+            color: #ccb8b0;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        .process-area.has-result {
+            border-style: solid;
+            border-color: #ffe07a;
+            background: #fffef9;
+            animation: highlightBorder 0.6s ease-out;
+        }
+        @keyframes highlightBorder {
+            0% { border-color: #ff7eb3; box-shadow: 0 0 0 0 rgba(255,126,179,0.3); }
+            100% { border-color: #ffe07a; box-shadow: 0 0 0 0 rgba(255,126,179,0); }
+        }
+        .process-step {
+            margin-bottom: 10px;
+            padding: 10px 14px;
+            background: #fffef8;
+            border-radius: 10px;
+            border-left: 4px solid #ffe07a;
+            font-weight: 600;
+            color: var(--text);
+            font-size: 0.95rem;
+            line-height: 1.7;
+            transition: all var(--transition);
+            animation: slideIn 0.4s ease-out;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .process-step.highlight {
+            border-left-color: #ff7eb3;
+            background: #fff5f9;
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #e0607a;
+        }
+        .math-expression {
+            display: inline-block;
+            background: #fffef5;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-family: 'Courier New', 'SF Mono', 'Consolas', monospace;
+            font-weight: 700;
+            font-size: 1.05rem;
+            letter-spacing: 1px;
+            color: #d46880;
+            margin: 3px 2px;
+        }
+        .big-result {
+            font-size: 1.5rem;
+            color: #ff6b9d;
+            font-weight: 900;
+            display: inline-block;
+            background: #fff0f5;
+            padding: 6px 16px;
+            border-radius: 30px;
+        }
+
+        /* 响应式 */
+        @media (max-width: 600px) {
+            .main-container { padding: 20px 14px 18px; border-radius: 22px; border-width: 2px; }
+            .number-input { flex: 1 1 100%; min-width: 100%; font-size: 1rem; padding: 12px 16px; }
+            .btn { font-size: 0.9rem; padding: 11px 16px; }
+            .btn-add, .btn-calc { font-size: 0.95rem; padding: 12px 18px; }
+            .button-row { gap: 6px; }
+            .data-tag { font-size: 0.85rem; padding: 6px 10px; }
+            .app-header h1 { font-size: 1.4rem; }
+            .app-header .icon-row { font-size: 2.4rem; }
+            .bg-decoration.d1,.bg-decoration.d2,.bg-decoration.d3,.bg-decoration.d4,.bg-decoration.d5,.bg-decoration.d6 { font-size: 1.8rem; opacity: 0.35; }
+        }
+        @media (min-width: 601px) and (max-width: 900px) {
+            .main-container { max-width: 90%; padding: 26px 22px 24px; }
+            .number-input { flex: 1 1 180px; }
+        }
+        @media (min-width: 901px) {
+            .main-container { max-width: 720px; }
+            .number-input { flex: 1 1 220px; }
+        }
+
+        /* 深色模式适配 */
+        @media (prefers-color-scheme: dark) {
+            body { background: linear-gradient(160deg, #2a1f25 0%, #1f2228 25%, #1e282f 50%, #1f251d 75%, #252118 100%); }
+            .main-container { background: #2d2830; border-color: #4a3a45; box-shadow: 0 8px 30px rgba(0,0,0,0.35); }
+            .number-input { background: #3a3240; border-color: #5a4a58; color: #f0dde8; }
+            .number-input:focus { border-color: #ff9ec5; background: #3f3646; }
+            .number-input::placeholder { color: #8a7585; }
+            .data-display-area { background: #302a34; border-color: #4a3a45; }
+            .data-display-area .section-label { color: #c8a8b8; }
+            .data-tag { background: #3d3040; border-color: #5a4555; color: #f0b8c8; }
+            .data-tag .tag-index { background: #c87090; }
+            .no-data { color: #8a7585; }
+            .data-count-badge { background: #b89830; color: #fff; }
+            .process-area { background: #2d2830; border-color: #5a4a50; }
+            .process-area.has-result { border-color: #c8a830; background: #2f2a28; }
+            .process-step { background: #302a30; color: #e0d0d8; border-left-color: #c8a830; }
+            .process-step.highlight { background: #3d2a35; border-left-color: #ff9ec5; color: #ffb8d0; }
+            .math-expression { background: #3a3038; color: #f0b8c8; }
+            .big-result { background: #3d2a35; color: #ff9ec5; }
+            .btn-clear { background: #3a3240; color: #d8a0b0; border-color: #5a4555; }
+            .btn-clear:hover { background: #443848; border-color: #c87090; color: #f0b8c8; }
+            .btn-reset { background: #3d2a35; color: #d8a0b0; border-color: #5a4048; }
+            .btn-reset:hover { background: #4d3040; color: #f0b8c8; }
+            .app-header h1 { color: #ff9ec5; }
+            .app-header .subtitle { color: #b898a8; }
+            .bg-decoration { opacity: 0.3; }
+            .process-area.empty { background: #2d2830; border-color: #4a3a42; color: #8a7580; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 背景装饰 -->
+    <span class="bg-decoration d1" aria-hidden="true">🌸</span>
+    <span class="bg-decoration d2" aria-hidden="true">⭐</span>
+    <span class="bg-decoration d3" aria-hidden="true">🎈</span>
+    <span class="bg-decoration d4" aria-hidden="true">🌈</span>
+    <span class="bg-decoration d5" aria-hidden="true">🦊</span>
+    <span class="bg-decoration d6" aria-hidden="true">🐼</span>
+
+    <main class="main-container" role="main" aria-label="平均数计算器">
+        <div class="app-header">
+            <div class="icon-row" aria-hidden="true">🧮✨📐</div>
+            <h1>平均数计算器</h1>
+            <p class="subtitle">四年级数学 · 课堂小帮手</p>
+        </div>
+
+        <div class="input-section">
+            <label for="numberInput">输入一个数字：</label>
+            <input type="number" id="numberInput" class="number-input" placeholder="✏️ 在这里输入数字..." step="any" inputmode="decimal" autocomplete="off">
+            <button class="btn btn-add" id="btnAdd" aria-label="添加数字">➕ 添加</button>
+        </div>
+
+        <div class="data-display-area" id="dataDisplayArea">
+            <div class="section-label">📋 已输入的数据 <span class="data-count-badge" id="countBadge">0 个</span></div>
+            <div class="data-tags" id="dataTagsContainer">
+                <span class="no-data" id="noDataHint">还没有添加数据哦～快来输入数字吧！</span>
+            </div>
+        </div>
+
+        <div class="button-row">
+            <button class="btn btn-calc" id="btnCalculate" aria-label="计算平均数">🎯 计算平均数</button>
+            <button class="btn btn-clear" id="btnClearLast" aria-label="删除最后一个数据">↩️ 撤销</button>
+            <button class="btn btn-reset" id="btnReset" aria-label="全部清空">🗑️ 清空</button>
+        </div>
+
+        <div class="process-area empty" id="processArea" aria-live="polite">
+            <span id="processPlaceholder">📐 点击"计算平均数"查看详细计算过程～</span>
+            <div id="processContent" style="display:none;"></div>
+        </div>
+    </main>
+
+    <script>
+        (function() {
+            const numberInput = document.getElementById('numberInput');
+            const btnAdd = document.getElementById('btnAdd');
+            const btnCalculate = document.getElementById('btnCalculate');
+            const btnClearLast = document.getElementById('btnClearLast');
+            const btnReset = document.getElementById('btnReset');
+            const dataTagsContainer = document.getElementById('dataTagsContainer');
+            const countBadge = document.getElementById('countBadge');
+            const processArea = document.getElementById('processArea');
+            const processPlaceholder = document.getElementById('processPlaceholder');
+            const processContent = document.getElementById('processContent');
+
+            let dataList = [];
+
+            function renderDataTags() {
+                dataTagsContainer.innerHTML = '';
+                if (dataList.length === 0) {
+                    const span = document.createElement('span');
+                    span.className = 'no-data';
+                    span.textContent = '还没有添加数据哦～快来输入数字吧！';
+                    span.id = 'noDataHint';
+                    dataTagsContainer.appendChild(span);
+                    countBadge.textContent = '0 个';
+                } else {
+                    dataList.forEach((val, idx) => {
+                        const tag = document.createElement('span');
+                        tag.className = 'data-tag';
+                        tag.innerHTML = `<span class="tag-index">${idx + 1}</span> ${val}`;
+                        tag.setAttribute('aria-label', `第${idx + 1}个数据：${val}`);
+                        dataTagsContainer.appendChild(tag);
+                    });
+                    countBadge.textContent = dataList.length + ' 个';
+                }
+            }
+
+            function clearProcess() {
+                processArea.classList.remove('has-result');
+                processArea.classList.add('empty');
+                processPlaceholder.style.display = '';
+                processContent.style.display = 'none';
+                processContent.innerHTML = '';
+                processPlaceholder.textContent = '📐 点击"计算平均数"查看详细计算过程～';
+            }
+
+            function showProcess() {
+                if (dataList.length === 0) {
+                    processArea.classList.remove('has-result');
+                    processArea.classList.add('empty');
+                    processPlaceholder.style.display = '';
+                    processContent.style.display = 'none';
+                    processPlaceholder.textContent = '😅 没有数据，无法计算哦～请先添加数字！';
+                    return;
+                }
+
+                const sum = dataList.reduce((acc, val) => acc + val, 0);
+                const count = dataList.length;
+                const average = sum / count;
+                const avgDisplay = Number.isInteger(average) ? average : parseFloat(average.toFixed(4));
+                const sumDisplay = Number.isInteger(sum) ? sum : parseFloat(sum.toFixed(4));
+                const expressionWithValues = dataList.map(v => Number.isInteger(v) ? v : parseFloat(v.toFixed(4))).join(' + ');
+
+                processArea.classList.remove('empty');
+                processArea.classList.add('has-result');
+                processPlaceholder.style.display = 'none';
+                processContent.style.display = '';
+
+                let html = '';
+                // 步骤1：列出数据
+                html += `
+                    <div class="process-step" style="animation-delay: 0s;">
+                        📝 <strong>第1步：列出所有数据</strong><br>
+                        共有 <span class="math-expression">${count}</span> 个数据：
+                        <span class="math-expression">${expressionWithValues}</span>
+                    </div>`;
+
+                // 步骤2：求和
+                html += `
+                    <div class="process-step" style="animation-delay: 0.08s;">
+                        ➕ <strong>第2步：计算总和</strong><br>
+                        <span class="math-expression">${expressionWithValues} = <b>${sumDisplay}</b></span><br>
+                        <span style="color:#888;font-size:0.85rem;">（把所有数据加起来）</span>
+                    </div>`;
+
+                // 步骤3：综合算式（关键改动）
+                html += `
+                    <div class="process-step" style="animation-delay: 0.16s;">
+                        ➗ <strong>第3步：综合算式计算平均数</strong><br>
+                        <span class="math-expression">(${expressionWithValues}) ÷ ${count}</span><br>
+                        <span class="math-expression"> = ${sumDisplay} ÷ ${count} = <b>${avgDisplay}</b></span><br>
+                        <span style="color:#888;font-size:0.85rem;">（先把所有数加起来，再除以个数）</span>
+                    </div>`;
+
+                // 步骤4：最终结果
+                html += `
+                    <div class="process-step highlight" style="animation-delay: 0.24s;">
+                        🎉 <strong>计算结果：平均数 = </strong>
+                        <span class="big-result">${avgDisplay}</span>
+                        ${Number.isInteger(average) ? ' ✨' : ' 📏（已保留合适小数位）'}
+                    </div>`;
+
+                processContent.innerHTML = html;
+            }
+
+            function addData() {
+                const rawValue = numberInput.value.trim();
+                if (rawValue === '') {
+                    shakeElement(numberInput);
+                    numberInput.focus();
+                    return;
+                }
+                const num = parseFloat(rawValue);
+                if (isNaN(num)) {
+                    shakeElement(numberInput);
+                    numberInput.focus();
+                    return;
+                }
+                if (!isFinite(num)) {
+                    alert('⚠️ 请输入一个有效的有限数字哦～');
+                    numberInput.value = '';
+                    numberInput.focus();
+                    return;
+                }
+                if (Math.abs(num) > 999999999) {
+                    const confirmBig = confirm('这个数字非常大哦～确定要添加吗？😊');
+                    if (!confirmBig) {
+                        numberInput.focus();
+                        return;
+                    }
+                }
+                dataList.push(num);
+                numberInput.value = '';
+                numberInput.focus();
+                renderDataTags();
+                clearProcess();
+                const lastTag = dataTagsContainer.lastElementChild;
+                if (lastTag && lastTag.classList.contains('data-tag')) {
+                    lastTag.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }
+
+            function shakeElement(el) {
+                el.style.animation = 'none';
+                el.offsetHeight;
+                el.style.animation = 'shake 0.4s ease';
+                setTimeout(() => { el.style.animation = ''; }, 400);
+            }
+
+            function clearLast() {
+                if (dataList.length === 0) {
+                    processPlaceholder.style.display = '';
+                    processContent.style.display = 'none';
+                    processArea.classList.add('empty');
+                    processArea.classList.remove('has-result');
+                    processPlaceholder.textContent = '🤔 没有数据可以撤销哦～';
+                    setTimeout(() => {
+                        if (dataList.length === 0 && processPlaceholder.textContent === '🤔 没有数据可以撤销哦～') {
+                            processPlaceholder.textContent = '📐 点击"计算平均数"查看详细计算过程～';
+                        }
+                    }, 1800);
+                    return;
+                }
+                const removed = dataList.pop();
+                renderDataTags();
+                clearProcess();
+                processPlaceholder.style.display = '';
+                processContent.style.display = 'none';
+                processArea.classList.add('empty');
+                processArea.classList.remove('has-result');
+                processPlaceholder.textContent = `↩️ 已撤销：${removed}`;
+                setTimeout(() => {
+                    if (processPlaceholder.textContent.startsWith('↩️ 已撤销')) {
+                        processPlaceholder.textContent = '📐 点击"计算平均数"查看详细计算过程～';
+                    }
+                }, 1500);
+            }
+
+            function resetAll() {
+                if (dataList.length === 0) {
+                    processPlaceholder.style.display = '';
+                    processContent.style.display = 'none';
+                    processArea.classList.add('empty');
+                    processArea.classList.remove('has-result');
+                    processPlaceholder.textContent = '🧹 已经没有数据啦～';
+                    setTimeout(() => {
+                        if (processPlaceholder.textContent === '🧹 已经没有数据啦～') {
+                            processPlaceholder.textContent = '📐 点击"计算平均数"查看详细计算过程～';
+                        }
+                    }, 1500);
+                    numberInput.focus();
+                    return;
+                }
+                dataList = [];
+                renderDataTags();
+                clearProcess();
+                processPlaceholder.style.display = '';
+                processContent.style.display = 'none';
+                processArea.classList.add('empty');
+                processArea.classList.remove('has-result');
+                processPlaceholder.textContent = '🧹 已全部清空！来重新输入数据吧～';
+                numberInput.value = '';
+                numberInput.focus();
+                setTimeout(() => {
+                    if (processPlaceholder.textContent === '🧹 已全部清空！来重新输入数据吧～') {
+                        processPlaceholder.textContent = '📐 点击"计算平均数"查看详细计算过程～';
+                    }
+                }, 1800);
+            }
+
+            btnAdd.addEventListener('click', addData);
+            btnCalculate.addEventListener('click', showProcess);
+            btnClearLast.addEventListener('click', clearLast);
+            btnReset.addEventListener('click', resetAll);
+
+            numberInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addData();
+                }
+            });
+
+            renderDataTags();
+            clearProcess();
+
+            const shakeStyle = document.createElement('style');
+            shakeStyle.textContent = `
+                @keyframes shake {
+                    0%,100% { transform: translateX(0); }
+                    20% { transform: translateX(-8px); }
+                    40% { transform: translateX(8px); }
+                    60% { transform: translateX(-5px); }
+                    80% { transform: translateX(5px); }
+                }
+            `;
+            document.head.appendChild(shakeStyle);
+            numberInput.focus();
+        })();
+    </script>
+</body>
+</html>
