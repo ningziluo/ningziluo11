@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>环保小队收集水瓶数条形统计图 · 移多补少学平均数</title>
+    <style>
+        :root {
+            --bg: #fef9f0;
+            --card-bg: #ffffff;
+            --text: #4a3728;
+            --grid-line: #d4c5a0;
+            --grid-strong: #bcaaa4;
+            --accent: #f9a825;
+            --cell-red: #ff6b6b;
+            --cell-red-dark: #e55a5a;
+            --cell-blue: #5c9cff;
+            --cell-blue-dark: #4a89e0;
+            --cell-green: #5cc96e;
+            --cell-green-dark: #4aaf5c;
+            --cell-orange: #ff9f43;
+            --cell-orange-dark: #e88a30;
+            --transition: 0.22s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Noto Sans SC', 'Microsoft YaHei', 'Hiragino Sans GB', sans-serif;
+            background: linear-gradient(165deg, #e8f5e9 0%, #fff8e1 30%, #fce4ec 70%, #e3f2fd 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+            overflow-x: hidden;
+        }
+
+        .bg-decoration {
+            position: fixed;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.10;
+            font-size: 3rem;
+            animation: floatAround 14s ease-in-out infinite;
+        }
+        .bg-decoration:nth-child(1) { top: 5%; left: 3%; font-size: 2.4rem; }
+        .bg-decoration:nth-child(2) { top: 10%; right: 4%; font-size: 3rem; animation-delay: -3s; }
+        .bg-decoration:nth-child(3) { bottom: 8%; left: 5%; font-size: 2.2rem; animation-delay: -7s; }
+        .bg-decoration:nth-child(4) { bottom: 14%; right: 3%; font-size: 3.2rem; animation-delay: -1s; }
+        .bg-decoration:nth-child(5) { top: 42%; left: 2%; font-size: 1.8rem; animation-delay: -5s; }
+
+        @keyframes floatAround {
+            0%,
+            100% {
+                transform: translateY(0) rotate(0deg) scale(1);
+            }
+            25% {
+                transform: translateY(-28px) rotate(6deg) scale(1.05);
+            }
+            50% {
+                transform: translateY(-6px) rotate(-4deg) scale(0.95);
+            }
+            75% {
+                transform: translateY(-22px) rotate(3deg) scale(1.03);
+            }
+        }
+
+        .main-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 840px;
+            background: var(--card-bg);
+            border-radius: 32px;
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.07), 0 4px 12px rgba(0, 0, 0, 0.04);
+            padding: clamp(14px, 2.5vw, 26px) clamp(10px, 2vw, 26px) clamp(18px, 2.5vw, 26px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 3px solid #f0e6d3;
+            transition: all 0.3s;
+        }
+
+        .title-area {
+            text-align: center;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .title-icon {
+            font-size: clamp(1.8rem, 3.8vw, 2.5rem);
+            display: inline-block;
+            animation: bounceIcon 2s ease-in-out infinite;
+        }
+        @keyframes bounceIcon {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-13px);
+            }
+            50% {
+                transform: translateY(0);
+            }
+            70% {
+                transform: translateY(-6px);
+            }
+            85% {
+                transform: translateY(0);
+            }
+        }
+        .title-text {
+            font-size: clamp(1.1rem, 2.6vw, 1.5rem);
+            font-weight: 700;
+            color: #3e2723;
+            letter-spacing: 0.04em;
+            background: linear-gradient(135deg, #5d4037, #8d6e63);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .total-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #fff9c4, #fff176);
+            border: 2.5px solid #f9a825;
+            border-radius: 40px;
+            padding: 8px 22px;
+            margin-bottom: 8px;
+            font-weight: 700;
+            font-size: clamp(0.9rem, 1.7vw, 1.1rem);
+            color: #5d4037;
+            box-shadow: 0 4px 14px rgba(249, 168, 37, 0.25);
+            animation: pulseBadge 3s ease-in-out infinite;
+            letter-spacing: 0.03em;
+        }
+        @keyframes pulseBadge {
+            0%,
+            100% {
+                box-shadow: 0 3px 12px rgba(249, 168, 37, 0.25);
+            }
+            50% {
+                box-shadow: 0 6px 24px rgba(249, 168, 37, 0.45);
+            }
+        }
+        .total-number {
+            font-size: clamp(1.2rem, 2.4vw, 1.6rem);
+            color: #e65100;
+            font-weight: 800;
+        }
+
+        .hint-text {
+            font-size: clamp(0.75rem, 1.3vw, 0.88rem);
+            color: #8d6e63;
+            margin-bottom: 10px;
+            text-align: center;
+            font-weight: 500;
+        }
+        .hint-emoji {
+            display: inline-block;
+            animation: wiggle 1.6s ease-in-out infinite;
+        }
+        @keyframes wiggle {
+            0%,
+            100% {
+                transform: rotate(0);
+            }
+            25% {
+                transform: rotate(13deg);
+            }
+            50% {
+                transform: rotate(-9deg);
+            }
+            75% {
+                transform: rotate(7deg);
+            }
+        }
+
+        /* 图表容器 */
+        .chart-wrapper {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            position: relative;
+            touch-action: none;
+        }
+        .chart-outer {
+            position: relative;
+            display: flex;
+            flex-direction: row;
+            align-items: stretch;
+            width: 100%;
+            max-width: 700px;
+        }
+
+        /* Y轴 */
+        .y-axis {
+            position: relative;
+            flex-shrink: 0;
+            width: 54px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            padding-right: 8px;
+            margin-right: 6px;
+        }
+        .y-axis-inner {
+            position: relative;
+            width: 100%;
+            flex-grow: 1;
+        }
+        .y-tick {
+            position: absolute;
+            right: 0;
+            transform: translateY(-50%);
+            font-size: clamp(0.6rem, 1.1vw, 0.74rem);
+            font-weight: 600;
+            color: #5d4b3a;
+            background: rgba(255, 255, 245, 0.94);
+            padding: 0 5px;
+            border-radius: 5px;
+            line-height: 1;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 2;
+        }
+        .y-axis-arrow {
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 18px solid #5d4037;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.22));
+            z-index: 3;
+        }
+        .y-axis-title {
+            position: absolute;
+            top: 6px;
+            left: calc(50% + 22px);
+            transform: translateX(-50%);
+            font-size: clamp(0.68rem, 1.3vw, 0.82rem);
+            font-weight: 700;
+            color: #3e2723;
+            white-space: nowrap;
+            background: #fffef7;
+            padding: 2px 12px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            z-index: 2;
+        }
+
+        /* 图表主体 */
+        .chart-body {
+            flex-grow: 1;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+        .grid-area {
+            position: relative;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+            align-items: stretch;
+            background-color: #fefef8;
+            border-left: 2.5px solid var(--grid-strong);
+            border-bottom: 2.5px solid var(--grid-strong);
+            border-radius: 0 0 8px 0;
+            overflow: visible;
+            min-height: 420px;
+        }
+        .grid-bg {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            border-radius: 0 0 8px 0;
+        }
+
+        /* 条形列 */
+        .bar-column-container {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            flex: 1;
+            max-width: 115px;
+            min-width: 48px;
+            padding: 0 6px;
+            cursor: default;
+        }
+        .bar-column-inner {
+            position: relative;
+            width: 100%;
+            flex-grow: 1;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        .bar-stack {
+            position: relative;
+            width: 80%;
+            max-width: 84px;
+            min-width: 34px;
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: center;
+        }
+        .cell-block {
+            position: relative;
+            width: 100%;
+            flex-shrink: 0;
+            border-radius: 7px;
+            cursor: grab;
+            transition: transform 0.14s ease, box-shadow 0.14s ease, opacity 0.18s;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.07), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+            z-index: 1;
+            border: 1.2px solid rgba(0, 0, 0, 0.05);
+            border-bottom: 1.4px solid rgba(0, 0, 0, 0.10);
+        }
+        .cell-block:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+            z-index: 10;
+        }
+        .cell-block:active {
+            cursor: grabbing;
+        }
+        .cell-block.dragging-source {
+            opacity: 0.3;
+            transform: scale(0.8);
+            pointer-events: none;
+        }
+
+        /* 各学生原始颜色 */
+        .cell-xiaohong {
+            background: linear-gradient(180deg, #ff9e9e 0%, #ff6b6b 45%, #e55a5a 100%);
+            border-color: #d94444;
+        }
+        .cell-xiaolan {
+            background: linear-gradient(180deg, #8ebfff 0%, #5c9cff 45%, #4a89e0 100%);
+            border-color: #3d70c2;
+        }
+        .cell-xiaoliang {
+            background: linear-gradient(180deg, #7edb8a 0%, #5cc96e 45%, #4aaf5c 100%);
+            border-color: #3a9148;
+        }
+        .cell-xiaoming {
+            background: linear-gradient(180deg, #ffc078 0%, #ff9f43 45%, #e88a30 100%);
+            border-color: #c96e1e;
+        }
+
+        .drag-clone {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            border-radius: 7px;
+            box-shadow: 0 14px 36px rgba(0, 0, 0, 0.35), 0 0 0 5px rgba(255, 255, 255, 0.8);
+            transform: translate(-50%, -50%) scale(1.1);
+            transition: box-shadow 0.1s;
+            border: 2px solid rgba(0, 0, 0, 0.2);
+        }
+        .drag-clone.snap-ready {
+            box-shadow: 0 18px 42px rgba(0, 0, 0, 0.45), 0 0 0 8px rgba(255, 215, 0, 0.7);
+            transform: translate(-50%, -50%) scale(1.15);
+        }
+        .bar-column-container.highlight-target .bar-stack {
+            animation: glowPulse 0.5s ease-in-out infinite;
+        }
+        @keyframes glowPulse {
+            0%,
+            100% {
+                filter: brightness(1);
+            }
+            50% {
+                filter: brightness(1.25) drop-shadow(0 0 10px #ffc832);
+            }
+        }
+        .bar-column-container.highlight-target {
+            background: rgba(255, 240, 130, 0.45);
+            border-radius: 14px;
+            transition: background 0.2s;
+        }
+
+        .count-label {
+            font-size: clamp(0.75rem, 1.3vw, 0.88rem);
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 4px;
+            min-height: 1.2em;
+            color: #3e2723;
+        }
+        .count-label.changed {
+            animation: popNumber 0.45s ease;
+        }
+        @keyframes popNumber {
+            0% {
+                transform: scale(1);
+            }
+            30% {
+                transform: scale(1.5);
+                color: #e65100;
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* X轴 */
+        .x-axis-area {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+            align-items: flex-start;
+            padding-top: 10px;
+            flex-shrink: 0;
+        }
+        .x-label {
+            flex: 1;
+            max-width: 115px;
+            min-width: 48px;
+            text-align: center;
+            font-weight: 700;
+            color: #4e342e;
+            padding: 0 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+        }
+        .x-label-emoji {
+            font-size: clamp(1rem, 2vw, 1.4rem);
+        }
+        .x-axis-bottom {
+            position: relative;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            height: 30px;
+            flex-shrink: 0;
+            margin-top: 2px;
+            margin-left: 54px;
+        }
+        .x-axis-arrow {
+            width: 0;
+            height: 0;
+            border-top: 9px solid transparent;
+            border-bottom: 9px solid transparent;
+            border-left: 17px solid #5d4037;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+            margin-left: 4px;
+        }
+        .x-axis-title {
+            font-size: clamp(0.68rem, 1.3vw, 0.82rem);
+            font-weight: 700;
+            color: #3e2723;
+            background: #fffef7;
+            padding: 2px 12px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            white-space: nowrap;
+            margin-right: 4px;
+        }
+
+        .btn-reset {
+            margin-top: clamp(14px, 2.5vw, 22px);
+            padding: 12px 38px;
+            font-size: clamp(0.88rem, 1.7vw, 1rem);
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            background: linear-gradient(135deg, #ffcc80, #ffa726);
+            color: #4e342e;
+            border: 2.5px solid #ef6c00;
+            border-radius: 40px;
+            cursor: pointer;
+            box-shadow: 0 4px 18px rgba(255, 152, 0, 0.3);
+            transition: all 0.25s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-family: inherit;
+        }
+        .btn-reset:hover {
+            background: linear-gradient(135deg, #ffb74d, #ff9800);
+            box-shadow: 0 8px 24px rgba(255, 152, 0, 0.45);
+            transform: translateY(-2px);
+        }
+        .btn-reset:active {
+            transform: scale(0.94);
+            box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+            transition: 0.1s;
+        }
+        .btn-reset-icon {
+            font-size: 1.3rem;
+            transition: transform 0.4s;
+        }
+        .btn-reset:active .btn-reset-icon {
+            transform: rotate(-360deg);
+        }
+
+        .celebrate-overlay {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .celebrate-overlay.active {
+            opacity: 1;
+        }
+        .celebrate-text {
+            font-size: clamp(2rem, 5.5vw, 3.6rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, #ff6b6b, #ff9f43, #ffd93d, #5cc96e, #5c9cff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: celebrateBounce 0.7s ease-out;
+            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
+        }
+        @keyframes celebrateBounce {
+            0% {
+                transform: scale(0.3);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.25);
+            }
+            70% {
+                transform: scale(0.9);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 10001;
+            font-size: 1.5rem;
+            animation: particleFly 1.2s ease-out forwards;
+        }
+        @keyframes particleFly {
+            0% {
+                transform: translate(0, 0) scale(0.4);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--dx), var(--dy)) scale(1.8);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .main-container {
+                border-radius: 22px;
+                padding: 10px 6px 14px;
+            }
+            .y-axis {
+                width: 44px;
+                padding-right: 4px;
+                margin-right: 2px;
+            }
+            .bar-stack {
+                width: 86%;
+            }
+            .grid-area {
+                min-height: 340px;
+            }
+            .btn-reset {
+                padding: 10px 28px;
+                font-size: 0.85rem;
+            }
+        }
+        @media (max-width: 400px) {
+            .y-axis {
+                width: 36px;
+            }
+            .bar-stack {
+                width: 90%;
+            }
+            .grid-area {
+                min-height: 280px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <span class="bg-decoration">🌿</span>
+    <span class="bg-decoration">💧</span>
+    <span class="bg-decoration">🌟</span>
+    <span class="bg-decoration">🍀</span>
+    <span class="bg-decoration">♻️</span>
+
+    <div class="celebrate-overlay" id="celebrateOverlay">
+        <span class="celebrate-text">🎉 都是13！平均数达成！🎉</span>
+    </div>
+
+    <div class="main-container" id="mainContainer">
+        <div class="title-area">
+            <span class="title-icon">📊</span>
+            <span class="title-text">环保小队收集水瓶数条形统计图</span>
+            <span class="title-icon">🧴</span>
+        </div>
+
+        <div class="total-badge" id="totalBadge">
+            <span>🔢</span>
+            <span>总数：</span>
+            <span class="total-number" id="totalNumber">52</span>
+            <span>个</span>
+        </div>
+
+        <div class="hint-text">
+            <span class="hint-emoji">👆</span> 拖动彩色格子到小伙伴的条形上，移多补少，看看怎样才能"同样多"？
+        </div>
+
+        <div class="chart-wrapper" id="chartWrapper">
+            <div class="chart-outer" id="chartOuter">
+                <div class="y-axis" id="yAxis">
+                    <div class="y-axis-inner" id="yAxisInner">
+                        <div class="y-axis-arrow"></div>
+                        <span class="y-axis-title">数量/个</span>
+                    </div>
+                </div>
+                <div class="chart-body" id="chartBody">
+                    <div class="grid-area" id="gridArea">
+                        <div class="grid-bg" id="gridBg"></div>
+                        <div class="bar-column-container" data-student="0" id="barCol0">
+                            <div class="count-label" id="countLabel0">14</div>
+                            <div class="bar-column-inner"><div class="bar-stack" id="barStack0"></div></div>
+                        </div>
+                        <div class="bar-column-container" data-student="1" id="barCol1">
+                            <div class="count-label" id="countLabel1">12</div>
+                            <div class="bar-column-inner"><div class="bar-stack" id="barStack1"></div></div>
+                        </div>
+                        <div class="bar-column-container" data-student="2" id="barCol2">
+                            <div class="count-label" id="countLabel2">11</div>
+                            <div class="bar-column-inner"><div class="bar-stack" id="barStack2"></div></div>
+                        </div>
+                        <div class="bar-column-container" data-student="3" id="barCol3">
+                            <div class="count-label" id="countLabel3">15</div>
+                            <div class="bar-column-inner"><div class="bar-stack" id="barStack3"></div></div>
+                        </div>
+                    </div>
+                    <div class="x-axis-area" id="xAxisArea">
+                        <div class="x-label"><span class="x-label-emoji">🌸</span>小红</div>
+                        <div class="x-label"><span class="x-label-emoji">💎</span>小兰</div>
+                        <div class="x-label"><span class="x-label-emoji">⭐</span>小亮</div>
+                        <div class="x-label"><span class="x-label-emoji">☀️</span>小明</div>
+                    </div>
+                    <div class="x-axis-bottom">
+                        <span class="x-axis-title">姓名</span>
+                        <div class="x-axis-arrow"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-reset" id="btnReset" title="恢复初始数据">
+            <span class="btn-reset-icon">🔄</span> 重 置
+        </button>
+    </div>
+
+    <script>
+        (function() {
+            const studentNames = ['小红', '小兰', '小亮', '小明'];
+            const studentColors = ['xiaohong', 'xiaolan', 'xiaoliang', 'xiaoming'];
+            const initialCounts = [14, 12, 11, 15];
+            const TOTAL_SUM = 52;
+            const AVERAGE = 13;
+            const MAX_Y_TICK = 16;
+            const GAP_BETWEEN_CELLS = 2; // 格子间距(px)
+
+            // 核心数据：每个学生当前拥有的格子来源
+            let cellOrigins = initialCounts.map((count, idx) => Array(count).fill(idx));
+            let cellSize = 40;
+            let gridHeight = 0;
+
+            const gridArea = document.getElementById('gridArea');
+            const gridBg = document.getElementById('gridBg');
+            const yAxisInner = document.getElementById('yAxisInner');
+            const totalNumberEl = document.getElementById('totalNumber');
+            const celebrateOverlay = document.getElementById('celebrateOverlay');
+            const btnReset = document.getElementById('btnReset');
+            const chartWrapper = document.getElementById('chartWrapper');
+
+            const barColContainers = [0, 1, 2, 3].map(i => document.getElementById('barCol' + i));
+            const barStacks = [0, 1, 2, 3].map(i => document.getElementById('barStack' + i));
+            const countLabels = [0, 1, 2, 3].map(i => document.getElementById('countLabel' + i));
+
+            let dragState = null;
+
+            // ----- 动态计算格子大小 -----
+            function calculateCellSize() {
+                const areaWidth = gridArea.clientWidth;
+                const availableHeight = Math.max(380, window.innerHeight - 240);
+                const fromHeight = Math.floor(availableHeight / MAX_Y_TICK);
+                const fromWidth = Math.floor((areaWidth - 65) / 4);
+                let ideal = Math.min(fromHeight, fromWidth);
+                ideal = Math.max(ideal, 28);
+                ideal = Math.min(ideal, 54);
+                return ideal;
+            }
+
+            function updateDimensions() {
+                cellSize = calculateCellSize();
+                gridHeight = MAX_Y_TICK * cellSize;
+                gridArea.style.minHeight = gridHeight + 'px';
+                gridArea.style.height = gridHeight + 'px';
+                yAxisInner.style.height = gridHeight + 'px';
+                const barWidth = Math.round(cellSize * 1.75);
+                barStacks.forEach(s => {
+                    s.style.width = barWidth + 'px';
+                    s.style.maxWidth = '84px';
+                    s.style.minWidth = '34px';
+                });
+            }
+
+            // ----- Y轴渲染（刻度对齐网格线） -----
+            function renderYAxis() {
+                yAxisInner.innerHTML = '';
+                for (let val = 0; val <= MAX_Y_TICK; val++) {
+                    const tick = document.createElement('span');
+                    tick.className = 'y-tick';
+                    tick.textContent = val;
+                    tick.style.top = ((MAX_Y_TICK - val) * cellSize) + 'px';
+                    yAxisInner.appendChild(tick);
+                }
+                const arrow = document.createElement('div');
+                arrow.className = 'y-axis-arrow';
+                yAxisInner.appendChild(arrow);
+                const title = document.createElement('span');
+                title.className = 'y-axis-title';
+                title.textContent = '数量/个';
+                yAxisInner.appendChild(title);
+            }
+
+            // ----- 网格背景 -----
+            function renderGridBackground() {
+                gridBg.style.backgroundImage = `
+                    repeating-linear-gradient(
+                        0deg,
+                        #d9ccb2 0px,
+                        #d9ccb2 1px,
+                        transparent 1px,
+                        transparent ${cellSize}px
+                    )
+                `;
+                gridBg.style.backgroundPosition = '0 0';
+                gridBg.style.backgroundSize = `100% ${cellSize}px`;
+            }
+
+            // ----- 渲染单个条形（根据cellOrigins，保留来源颜色） -----
+            function renderBar(studentIndex, animateLabel = false) {
+                const stack = barStacks[studentIndex];
+                const origins = cellOrigins[studentIndex];
+                stack.innerHTML = '';
+
+                origins.forEach((originIdx, ci) => {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell-block cell-' + studentColors[originIdx];
+                    cell.style.height = (cellSize - GAP_BETWEEN_CELLS) + 'px';
+                    cell.style.marginBottom = GAP_BETWEEN_CELLS + 'px';
+                    cell.dataset.studentIndex = studentIndex;
+                    cell.dataset.cellIndex = ci;
+                    cell.dataset.originStudent = originIdx;
+                    cell.title = studentNames[studentIndex] + ' 第' + (ci + 1) + '个水瓶（来自' + studentNames[
+                        originIdx] + '）';
+                    cell.addEventListener('pointerdown', onCellPointerDown);
+                    stack.appendChild(cell);
+                });
+
+                // 最后一个格子去掉margin-bottom，确保总高度=count*cellSize
+                if (stack.lastChild) {
+                    stack.lastChild.style.marginBottom = '0px';
+                }
+
+                const label = countLabels[studentIndex];
+                label.textContent = origins.length;
+                if (animateLabel) {
+                    label.classList.remove('changed');
+                    void label.offsetWidth;
+                    label.classList.add('changed');
+                }
+            }
+
+            function renderAllBars(animate = false) {
+                for (let i = 0; i < 4; i++) renderBar(i, animate);
+                updateTotalDisplay();
+                checkAllAverage();
+            }
+
+            function updateTotalDisplay() {
+                const total = cellOrigins.reduce((sum, arr) => sum + arr.length, 0);
+                totalNumberEl.textContent = total;
+                totalNumberEl.style.transform = 'scale(1.2)';
+                setTimeout(() => { totalNumberEl.style.transform = 'scale(1)'; }, 200);
+            }
+
+            function checkAllAverage() {
+                const allAvg = cellOrigins.every(arr => arr.length === AVERAGE);
+                const total = cellOrigins.reduce((s, arr) => s + arr.length, 0);
+                if (allAvg && total === TOTAL_SUM) {
+                    triggerCelebrate();
+                }
+            }
+
+            function triggerCelebrate() {
+                celebrateOverlay.classList.add('active');
+                spawnParticles();
+                setTimeout(() => celebrateOverlay.classList.remove('active'), 2200);
+            }
+
+            function spawnParticles() {
+                const cx = window.innerWidth / 2,
+                    cy = window.innerHeight / 2;
+                const emojis = ['🎉', '✨', '🌟', '💫', '🎊', '🥳', '👏', '💖', '🌈', '⭐'];
+                for (let i = 0; i < 32; i++) {
+                    const p = document.createElement('span');
+                    p.className = 'particle';
+                    p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                    p.style.left = cx + 'px';
+                    p.style.top = cy + 'px';
+                    const angle = Math.random() * Math.PI * 2;
+                    const dist = 120 + Math.random() * 300;
+                    p.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+                    p.style.setProperty('--dy', Math.sin(angle) * dist - 60 + 'px');
+                    p.style.animationDuration = (0.7 + Math.random() * 1.5) + 's';
+                    document.body.appendChild(p);
+                    setTimeout(() => p.remove(), 1800);
+                }
+            }
+
+            // ----- 从元素获取学生索引 -----
+            function getStudentFromElement(el) {
+                while (el) {
+                    if (el.classList?.contains('bar-column-container') && el.dataset.student !== undefined)
+                        return parseInt(el.dataset.student);
+                    if (el.dataset?.studentIndex !== undefined)
+                        return parseInt(el.dataset.studentIndex);
+                    el = el.parentElement;
+                }
+                return -1;
+            }
+
+            // ----- 拖拽：按下 -----
+            function onCellPointerDown(e) {
+                if (dragState) return;
+                const cell = e.currentTarget;
+                const studentIdx = parseInt(cell.dataset.studentIndex);
+                const cellIdx = parseInt(cell.dataset.cellIndex);
+                const originStudent = parseInt(cell.dataset.originStudent);
+                if (isNaN(studentIdx) || isNaN(cellIdx) || isNaN(originStudent)) return;
+                if (cellIdx >= cellOrigins[studentIdx].length) return;
+
+                e.preventDefault();
+                e.stopPropagation();
+
+                const rect = cell.getBoundingClientRect();
+                const clientX = e.clientX,
+                    clientY = e.clientY;
+
+                // 创建克隆体（使用格子的原始来源颜色）
+                const clone = cell.cloneNode(true);
+                clone.className = 'drag-clone cell-' + studentColors[originStudent];
+                clone.style.width = cell.offsetWidth + 'px';
+                clone.style.height = cell.offsetHeight + 'px';
+                clone.style.left = clientX + 'px';
+                clone.style.top = clientY + 'px';
+                clone.style.marginBottom = '0px';
+                document.body.appendChild(clone);
+
+                cell.classList.add('dragging-source');
+
+                // 从数据中移除
+                cellOrigins[studentIdx].splice(cellIdx, 1);
+                renderBar(studentIdx, false);
+
+                dragState = {
+                    sourceStudentIndex: studentIdx,
+                    cellIndex: cellIdx,
+                    originStudent: originStudent,
+                    cloneEl: clone,
+                    startX: clientX,
+                    startY: clientY,
+                    offsetX: clientX - rect.left,
+                    offsetY: clientY - rect.top,
+                    movedSignificantly: false,
+                    originalCell: cell,
+                };
+
+                document.addEventListener('pointermove', onPointerMove, { passive: false });
+                document.addEventListener('pointerup', onPointerUp);
+                document.addEventListener('pointercancel', onPointerUp);
+                document.body.style.cursor = 'grabbing';
+                chartWrapper.style.cursor = 'grabbing';
+            }
+
+            // ----- 拖拽：移动 -----
+            function onPointerMove(e) {
+                if (!dragState) return;
+                e.preventDefault();
+                const clientX = e.clientX,
+                    clientY = e.clientY;
+                const dx = clientX - dragState.startX,
+                    dy = clientY - dragState.startY;
+                if (Math.sqrt(dx * dx + dy * dy) > 6) dragState.movedSignificantly = true;
+
+                dragState.cloneEl.style.left = clientX + 'px';
+                dragState.cloneEl.style.top = clientY + 'px';
+
+                const clone = dragState.cloneEl;
+                clone.style.display = 'none';
+                const targetEl = document.elementFromPoint(clientX, clientY);
+                clone.style.display = '';
+
+                const targetIdx = getStudentFromElement(targetEl);
+                barColContainers.forEach(c => c.classList.remove('highlight-target'));
+                if (targetIdx >= 0 && targetIdx !== dragState.sourceStudentIndex) {
+                    barColContainers[targetIdx].classList.add('highlight-target');
+                    clone.classList.add('snap-ready');
+                } else if (targetIdx === dragState.sourceStudentIndex && dragState.movedSignificantly) {
+                    barColContainers[targetIdx].classList.add('highlight-target');
+                    clone.classList.remove('snap-ready');
+                } else {
+                    clone.classList.remove('snap-ready');
+                }
+            }
+
+            // ----- 拖拽：松开 -----
+            function onPointerUp(e) {
+                if (!dragState) return;
+                const clientX = e.clientX,
+                    clientY = e.clientY;
+
+                document.removeEventListener('pointermove', onPointerMove);
+                document.removeEventListener('pointerup', onPointerUp);
+                document.removeEventListener('pointercancel', onPointerUp);
+                document.body.style.cursor = '';
+                chartWrapper.style.cursor = '';
+
+                const clone = dragState.cloneEl;
+                clone.style.display = 'none';
+                const targetEl = document.elementFromPoint(clientX, clientY);
+                clone.style.display = '';
+                const targetIdx = getStudentFromElement(targetEl);
+
+                barColContainers.forEach(c => c.classList.remove('highlight-target'));
+                if (clone.parentNode) clone.remove();
+                if (dragState.originalCell) dragState.originalCell.classList.remove('dragging-source');
+
+                const srcIdx = dragState.sourceStudentIndex;
+                const originStud = dragState.originStudent;
+                let finalTarget = targetIdx;
+
+                // 判断是否有效移动
+                if (!dragState.movedSignificantly && finalTarget === srcIdx) {
+                    finalTarget = srcIdx; // 未移动，还原
+                }
+                if (finalTarget < 0 || finalTarget >= 4) {
+                    finalTarget = srcIdx; // 无效目标，还原
+                }
+
+                if (finalTarget === srcIdx && !dragState.movedSignificantly) {
+                    // 取消拖拽：恢复到源
+                    cellOrigins[srcIdx].splice(dragState.cellIndex, 0, originStud);
+                    renderBar(srcIdx, true);
+                } else if (finalTarget === srcIdx && dragState.movedSignificantly) {
+                    // 拖出去又拖回来，添加到末尾
+                    cellOrigins[srcIdx].push(originStud);
+                    renderBar(srcIdx, true);
+                } else {
+                    // 移动到其他学生
+                    cellOrigins[finalTarget].push(originStud);
+                    renderBar(finalTarget, true);
+                    // 源已经在onPointerDown中重新渲染过了，但需要更新标签动画
+                    countLabels[srcIdx].classList.remove('changed');
+                    void countLabels[srcIdx].offsetWidth;
+                    countLabels[srcIdx].classList.add('changed');
+                }
+
+                dragState = null;
+                updateTotalDisplay();
+                checkAllAverage();
+            }
+
+            // ----- 重置 -----
+            function resetAll() {
+                if (dragState) {
+                    if (dragState.cloneEl?.parentNode) dragState.cloneEl.remove();
+                    if (dragState.originalCell) dragState.originalCell.classList.remove('dragging-source');
+                    document.removeEventListener('pointermove', onPointerMove);
+                    document.removeEventListener('pointerup', onPointerUp);
+                    document.removeEventListener('pointercancel', onPointerUp);
+                    document.body.style.cursor = '';
+                    chartWrapper.style.cursor = '';
+                    barColContainers.forEach(c => c.classList.remove('highlight-target'));
+                    dragState = null;
+                }
+                cellOrigins = initialCounts.map((count, idx) => Array(count).fill(idx));
+                renderAllBars(true);
+                const icon = btnReset.querySelector('.btn-reset-icon');
+                icon.style.transform = 'rotate(-360deg)';
+                setTimeout(() => { icon.style.transform = 'rotate(0deg)'; }, 400);
+            }
+            btnReset.addEventListener('click', resetAll);
+
+            // ----- 窗口调整 -----
+            let resizeTimer;
+
+            function handleResize() {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(() => {
+                    updateDimensions();
+                    renderYAxis();
+                    renderGridBackground();
+                    renderAllBars(false);
+                }, 220);
+            }
+            window.addEventListener('resize', handleResize);
+            window.addEventListener('orientationchange', () => setTimeout(handleResize, 400));
+
+            // ----- 键盘：R重置，Esc取消拖拽 -----
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && dragState) {
+                    const src = dragState.sourceStudentIndex;
+                    const originStud = dragState.originStudent;
+                    const cellIdx = dragState.cellIndex;
+                    if (dragState.cloneEl?.parentNode) dragState.cloneEl.remove();
+                    if (dragState.originalCell) dragState.originalCell.classList.remove('dragging-source');
+                    document.removeEventListener('pointermove', onPointerMove);
+                    document.removeEventListener('pointerup', onPointerUp);
+                    document.removeEventListener('pointercancel', onPointerUp);
+                    document.body.style.cursor = '';
+                    chartWrapper.style.cursor = '';
+                    barColContainers.forEach(c => c.classList.remove('highlight-target'));
+                    // 恢复数据
+                    cellOrigins[src].splice(Math.min(cellIdx, cellOrigins[src].length), 0, originStud);
+                    renderBar(src, true);
+                    updateTotalDisplay();
+                    dragState = null;
+                }
+                if ((e.key === 'r' || e.key === 'R') && !e.ctrlKey && !e.metaKey && document.activeElement ===
+                    document.body) {
+                    resetAll();
+                }
+            });
+
+            // ----- 阻止意外滚动 -----
+            chartWrapper.addEventListener('touchmove', e => { if (dragState) e.preventDefault(); }, { passive: false });
+            barStacks.forEach(s => s.style.touchAction = 'none');
+            gridArea.style.touchAction = 'none';
+
+            // ----- 初始化 -----
+            function init() {
+                updateDimensions();
+                renderYAxis();
+                renderGridBackground();
+                renderAllBars(false);
+            }
+            requestAnimationFrame(() => requestAnimationFrame(init));
+
+            console.log('🌿 环保小队统计图 v3 已就绪！');
+            console.log('✅ 格子颜色保留 - 移多补少过程清晰可见');
+            console.log('✅ 条形精准对齐网格线');
+            console.log('✅ 操作区更大，体验更佳');
+        })();
+    </script>
+</body>
+</html>
